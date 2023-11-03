@@ -7,7 +7,6 @@ require 'base64'
 module Teak
   module AttrEncrypted
     class Encryptor
-      KEY_SPEC = 'AES_256'
       CIPHER = 'aes-256-gcm'
 
       CURRENT_VERSION = '1'
