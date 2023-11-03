@@ -10,6 +10,12 @@ module Teak
       KEY_SPEC = 'AES_256'
       CIPHER = 'aes-256-gcm'
 
+      IV = 'v'
+      TAG = 't'
+      KEY = 'k'
+      PACKET = 'p'
+      KEK_ID = 'i'
+
       def initialize(kek_provider)
         @kek_provider = kek_provider
       end
@@ -24,21 +30,26 @@ module Teak
 
         encrypted = cipher.update(plaintext) + cipher.final
         Base64.strict_encode64(
-          MessagePack.pack({iv: iv, tag: cipher.auth_tag, key: key_info.ciphertext_blob, packet: encrypted})
+          MessagePack.pack({
+            IV => iv,
+            TAG => cipher.auth_tag,
+            KEY => key_info.ciphertext_blob,
+            PACKET => encrypted
+          })
         )
       end
 
       def decrypt(envelope, encryption_context)
         structure = MessagePack.unpack(Base64.strict_decode64(envelope))
-        key_info = @kek_provider.decrypt_data_key(structure['key'], encryption_context)
+        key_info = @kek_provider.decrypt_data_key(structure[KEY], encryption_context)
 
         cipher = OpenSSL::Cipher.new(CIPHER).decrypt
         cipher.key = key_info.plaintext
-        cipher.iv = structure['iv']
-        cipher.auth_tag = structure['tag']
+        cipher.iv = structure[IV]
+        cipher.auth_tag = structure[TAG]
         cipher.auth_data = ''
 
-        cipher.update(structure['packet']) + cipher.final
+        cipher.update(structure[PACKET]) + cipher.final
       end
     end
   end
