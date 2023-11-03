@@ -16,6 +16,17 @@ RSpec.describe Teak::AttrEncrypted::Encryptor do
       recovered = encryptor.decrypt(ciphertext_blob, encryption_context)
       expect(recovered).to eq plaintext
     end
+
+    it 'prefixes the envelope with the current version' do
+      ciphertext_blob = encryptor.encrypt(plaintext, encryption_context)
+      expect(ciphertext_blob[0]).to eq described_class::CURRENT_VERSION
+    end
+
+    it 'raises if the envelope version is unrecognized' do
+      ciphertext_blob = +encryptor.encrypt(plaintext, encryption_context)
+      ciphertext_blob[0] = ciphertext_blob[0].succ
+      expect { encryptor.decrypt(ciphertext_blob, encryption_context) }.to raise_error(Teak::AttrEncrypted::Error)
+    end
   end
 
   context 'with no encryption_context' do

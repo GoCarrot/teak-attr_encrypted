@@ -10,6 +10,8 @@ module Teak
       KEY_SPEC = 'AES_256'
       CIPHER = 'aes-256-gcm'
 
+      CURRENT_VERSION = '1'
+
       IV = 'v'
       TAG = 't'
       KEY = 'k'
@@ -29,27 +31,33 @@ module Teak
         cipher.auth_data = ''
 
         encrypted = cipher.update(plaintext) + cipher.final
-        Base64.strict_encode64(
+        "#{CURRENT_VERSION}#{Base64.strict_encode64(
           MessagePack.pack({
             IV => iv,
             TAG => cipher.auth_tag,
             KEY => key_info.ciphertext_blob,
             PACKET => encrypted
           })
-        )
+        )}"
       end
 
       def decrypt(envelope, encryption_context)
-        structure = MessagePack.unpack(Base64.strict_decode64(envelope))
-        key_info = @kek_provider.decrypt_data_key(structure[KEY], encryption_context)
+        version = envelope[0]
+        case version
+        when '1'
+          structure = MessagePack.unpack(Base64.strict_decode64(envelope[1..-1]))
+          key_info = @kek_provider.decrypt_data_key(structure[KEY], encryption_context)
 
-        cipher = OpenSSL::Cipher.new(CIPHER).decrypt
-        cipher.key = key_info.plaintext
-        cipher.iv = structure[IV]
-        cipher.auth_tag = structure[TAG]
-        cipher.auth_data = ''
+          cipher = OpenSSL::Cipher.new(CIPHER).decrypt
+          cipher.key = key_info.plaintext
+          cipher.iv = structure[IV]
+          cipher.auth_tag = structure[TAG]
+          cipher.auth_data = ''
 
-        cipher.update(structure[PACKET]) + cipher.final
+          cipher.update(structure[PACKET]) + cipher.final
+        else
+          raise Teak::AttrEncrypted::Error.new("Unrecognized envelope version #{version}")
+        end
       end
     end
   end
