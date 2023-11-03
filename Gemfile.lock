@@ -2,7 +2,6 @@ PATH
   remote: .
   specs:
     teak-attr_encrypted (0.1.0)
-      aws-sdk-kms (~> 1.72)
       msgpack (~> 1.7)
 
 GEM
@@ -49,6 +48,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  aws-sdk-kms (~> 1.72)
   rake (~> 12.0)
   rspec (~> 3.0)
   simplecov (~> 0.22.0)
