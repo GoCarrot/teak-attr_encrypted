@@ -7,6 +7,16 @@ RSpec.describe Teak::AttrEncrypted::KEKProvider::AES do
   let(:encryption_context) { nil }
   subject(:kek_provider) { described_class.new(key) }
 
+  it 'sets the same kek id for the same key' do
+    alt_provider = described_class.new(key)
+    expect(kek_provider.id).to eq alt_provider.id
+  end
+
+  it 'sets different kek ids for different keys' do
+    alt_provider = described_class.new(OpenSSL::Cipher.new('aes-256-gcm').encrypt.random_key)
+    expect(kek_provider.id).not_to eq alt_provider.id
+  end
+
   shared_examples_for 'basic functioning' do
     it 'returns a structure with plaintext and ciphertext_blob attributes' do
       expect(kek_provider.request_data_key(encryption_context)).to have_attributes(

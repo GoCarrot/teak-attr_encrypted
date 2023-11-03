@@ -1,16 +1,20 @@
 # frozen_string_literal: true
 
+require 'teak/attr_encrypted/kek_provider/base'
+
 require 'aws-sdk-kms'
 
 module Teak
   module AttrEncrypted
     module KEKProvider
-      class AwsKMS
+      class AwsKMS < Base
         KEY_SPEC = 'AES_256'
 
         def initialize(key_id, client: nil)
           @key_id = key_id
           @kms_client = client || Aws::KMS::Client.new
+
+          super(@kms_client.describe_key(key_id: key_id).key_metadata.arn)
         end
 
         def request_data_key(encryption_context)

@@ -1,18 +1,21 @@
 # frozen_string_literal: true
 
+require 'teak/attr_encrypted/kek_provider/base'
+
 require 'openssl'
 require 'msgpack'
 
 module Teak
   module AttrEncrypted
     module KEKProvider
-      class AES
+      class AES < Base
         Decrypted = Struct.new(:plaintext)
         KeyInfo = Struct.new(:plaintext, :ciphertext_blob)
 
         CIPHER = 'aes-256-gcm'
 
         def initialize(key)
+          super(OpenSSL::Digest::SHA256.hexdigest(key))
           @key = key
         end
 

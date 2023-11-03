@@ -32,6 +32,7 @@ module Teak
         encrypted = cipher.update(plaintext) + cipher.final
         "#{CURRENT_VERSION}#{Base64.strict_encode64(
           MessagePack.pack({
+            KEK_ID => @kek_provider.id,
             IV => iv,
             TAG => cipher.auth_tag,
             KEY => key_info.ciphertext_blob,
