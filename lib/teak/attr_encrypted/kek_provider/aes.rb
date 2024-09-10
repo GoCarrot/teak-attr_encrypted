@@ -8,6 +8,9 @@ require 'msgpack'
 module Teak
   module AttrEncrypted
     module KEKProvider
+      # Provides a random key encrypted with a given aes-256-gcm key
+      # NOTE: This uses a random iv and is only considered secure for
+      # 2**32 invocations of request_data_key.
       class AES < Base
         Decrypted = Struct.new(:plaintext)
         KeyInfo = Struct.new(:plaintext, :ciphertext_blob)
