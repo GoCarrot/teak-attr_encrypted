@@ -31,7 +31,7 @@ module Teak
               ''
             end
           ciphertext = cipher.update(data_key) + cipher.final
-          ciphertext_blob = MessagePack.pack({iv: iv, tag: cipher.auth_tag, key: ciphertext})
+          ciphertext_blob = MessagePack.pack({'iv' => iv, 'tag' => cipher.auth_tag, 'key' => ciphertext})
 
           KeyInfo.new(data_key, ciphertext_blob)
         end
