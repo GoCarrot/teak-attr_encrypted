@@ -1,7 +1,5 @@
 version: 2.1
 
-setup: true
-
 parameters:
   scheduled_run:
     type: boolean
