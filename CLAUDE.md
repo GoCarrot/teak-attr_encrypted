@@ -55,10 +55,9 @@ Never commit:
 
 ### Commit Checklist
 Before ANY commit:
-- [ ] Did I run `rake lint` or `yarn lint` and fix any issues?
-- [ ] Did I run tests (`rspec`, `yarn test`, `yarn test-storybook`) if applicable?
+- [ ] Did I run `rake lint` and fix any issues?
+- [ ] Did I run tests (`rspec`) if applicable?
 - [ ] Did I search for existing patterns before writing code?
-- [ ] Did I test in both CLI and browser (if UI changes)?
 - [ ] Did I document any NEW problem/solution in CLAUDE.md?
 - [ ] Am I solving a genuinely new problem? (Rare!)
 - [ ] **Did I capture VERBATIM human-Claude interactions in commit message?**
@@ -70,7 +69,6 @@ You MUST output exactly (even for `git commit --amend`):
 ☑️ Lint clean: [YES/NO/NA - only if code changed]
 ☑️ Tests pass: [YES/NO/NA - only if code changed]
 ☑️ Tested in CLI: [YES/NO/NA - only if CLI code changed]
-☑️ Tested in browser: [YES/NO/NA - only if UI code changed]
 ☑️ Documented new patterns: [YES/NO/NA - only if applicable]
 ☑️ ALL prompts since last commit captured: [YES - X prompts captured VERBATIM]
 
