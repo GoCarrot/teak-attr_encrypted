@@ -19,14 +19,14 @@ module Teak
       class << self
         def allow_encryption_contexts(*contexts)
           config = context_config
-          config[:allowed] = contexts.flatten
+          config[:allowed] = Array(contexts).flatten
           config[:denied] = nil
         end
 
         def context_allowed?(context)
           config = context_config
           if config[:allowed]
-            config[:allowed].include?(context)
+            config[:allowed].include?(context[:type])
           else
             true
           end
