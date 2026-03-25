@@ -1,0 +1,7 @@
+inherit_gem:
+  teak-dev: config/rubocop-base.yml
+
+inherit_from: .rubocop_todo.yml
+inherit_mode:
+  merge:
+    - Exclude
