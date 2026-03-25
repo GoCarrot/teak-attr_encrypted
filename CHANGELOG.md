@@ -1,3 +1,8 @@
+## 0.2.0
+
+FEATURES:
+* Add testing tools, to simulate availability / absence of specific encryption contexts.
+
 ## 0.1.1
 
 BUG FIXES:
