@@ -61,6 +61,8 @@ jobs:
       - restore_cache:
           key: *BUNDLE_CACHE_KEY
       - run: mkdir ~/rspec
+      - run: gem list
+      - run: bundle list
       - run:
           command: |
             circleci tests glob "spec/**/*_spec.rb" | circleci tests run --command="xargs bundle exec rspec --format progress --format RspecJunitFormatter -o ~/rspec/rspec.xml" --verbose --split-by=timings
