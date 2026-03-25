@@ -121,7 +121,7 @@ jobs:
           mentions: *AUDIT_ALERT_RECIPIENTS
 
 workflows:
-  normal:
+  build:
     when:
       not: << pipeline.parameters.scheduled_run >>
     jobs:
