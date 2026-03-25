@@ -23,18 +23,10 @@ module Teak
           config[:denied] = nil
         end
 
-        def deny_encryption_contexts(*contexts)
-          config = context_config
-          config[:denied] = contexts.flatten
-          config[:allowed] = nil
-        end
-
         def context_allowed?(context)
           config = context_config
           if config[:allowed]
             config[:allowed].include?(context)
-          elsif config[:denied]
-            !config[:denied].include?(context)
           else
             true
           end
@@ -70,14 +62,10 @@ module Teak
         end
       end
 
-      # Include in RSpec to get allow/deny helper methods.
+      # Include in RSpec to get allow helper methods.
       module RSpecHelpers
         def allow_encryption_contexts(*contexts)
           Teak::AttrEncrypted::Testing.allow_encryption_contexts(*contexts)
-        end
-
-        def deny_encryption_contexts(*contexts)
-          Teak::AttrEncrypted::Testing.deny_encryption_contexts(*contexts)
         end
       end
 
