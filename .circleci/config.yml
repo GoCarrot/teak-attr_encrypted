@@ -9,7 +9,7 @@ references:
   AUDIT_ALERT_RECIPIENTS: &AUDIT_ALERT_RECIPIENTS
     "@jfrisby"
   RUBY_IMAGE: &RUBY_IMAGE
-    cimg/ruby:3.1.4
+    cimg/ruby:3.2.2
   CACHE_KEY: &BUNDLE_CACHE_KEY
     v1-teak-attr_encrypted-{{ checksum "Gemfile.lock" }}
   # ONLY_DEVELOP: &ONLY_DEVELOP

@@ -8,7 +8,7 @@ gem "rspec", "~> 3.0"
 gem "rspec_junit_formatter", "~> 0.6"
 gem 'simplecov', '~> 0.22.0'
 gem "aws-sdk-kms", "~> 1.72"
-gem "nokogiri", "~> 1.18"
+gem "nokogiri", "~> 1.19"
 
 group :development do
   gem 'bundler-audit', '~> 0.8', require: false

@@ -29,7 +29,7 @@ The gem implements envelope encryption with a two-tier key hierarchy:
 
 ## Key Details
 
-- Ruby 3.1.4 (`.ruby-version`), gemset managed via `.ruby-gemset`
+- Ruby 3.2.2 (`.ruby-version`), gemset managed via `.ruby-gemset`
 - Only runtime dependency: `msgpack ~> 1.7`
 - Test dependencies: `rspec`, `simplecov` (branch coverage enabled), `aws-sdk-kms`
 - RSpec configured with `disable_monkey_patching!` and `expect` syntax only
