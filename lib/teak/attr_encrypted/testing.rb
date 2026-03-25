@@ -26,7 +26,7 @@ module Teak
         def context_allowed?(context)
           config = context_config
           if config[:allowed]
-            config[:allowed].include?(context[:type])
+            config[:allowed].include?(context&.[](:type))
           else
             true
           end
