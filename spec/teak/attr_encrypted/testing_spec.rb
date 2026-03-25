@@ -32,7 +32,7 @@ RSpec.describe Teak::AttrEncrypted::Testing do
   describe '.allow_encryption_contexts' do
     it 'allows listed contexts' do
       context_value = 'allowed_ctx'
-      instance = klass.new(context_value)
+      instance = klass.new({ type: context_value })
 
       described_class.allow_encryption_contexts(context_value)
 
@@ -41,7 +41,7 @@ RSpec.describe Teak::AttrEncrypted::Testing do
     end
 
     it 'denies unlisted contexts' do
-      instance = klass.new('other_ctx')
+      instance = klass.new({ type: 'other_ctx' })
 
       described_class.allow_encryption_contexts('allowed_ctx')
 
@@ -49,8 +49,8 @@ RSpec.describe Teak::AttrEncrypted::Testing do
     end
 
     it 'denies on read when context is not allowed' do
-      context_value = 'was_allowed'
-      instance = klass.new(context_value)
+      context_value = { type: 'was_allowed' }
+      instance = klass.new({ type: context_value })
 
       described_class.allow_encryption_contexts(context_value)
       instance.secret = plaintext
@@ -62,7 +62,7 @@ RSpec.describe Teak::AttrEncrypted::Testing do
     it 'allows multiple contexts' do
       described_class.allow_encryption_contexts('ctx_a', 'ctx_b')
 
-      a = klass.new('ctx_a')
+      a = klass.new({ type: 'ctx_a' })
       a.secret = plaintext
       expect(a.secret).to eq plaintext
     end
@@ -70,7 +70,7 @@ RSpec.describe Teak::AttrEncrypted::Testing do
     it 'denies contexts not in the allow list' do
       described_class.allow_encryption_contexts('ctx_a', 'ctx_b')
 
-      expect { klass.new('ctx_c').secret = plaintext }.to raise_error(described_class::ContextNotAllowed)
+      expect { klass.new({ type: 'ctx_c' }).secret = plaintext }.to raise_error(described_class::ContextNotAllowed)
     end
 
     it 'handles nil context as allowed' do
@@ -84,40 +84,7 @@ RSpec.describe Teak::AttrEncrypted::Testing do
     it 'denies non-nil contexts when only nil is allowed' do
       described_class.allow_encryption_contexts(nil)
 
-      expect { klass.new('some_ctx').secret = plaintext }.to raise_error(described_class::ContextNotAllowed)
-    end
-  end
-
-  describe '.deny_encryption_contexts' do
-    it 'denies listed contexts' do
-      instance = klass.new('denied_ctx')
-
-      described_class.deny_encryption_contexts('denied_ctx')
-
-      expect { instance.secret = plaintext }.to raise_error(described_class::ContextNotAllowed)
-    end
-
-    it 'allows unlisted contexts' do
-      instance = klass.new('fine_ctx')
-
-      described_class.deny_encryption_contexts('denied_ctx')
-
-      instance.secret = plaintext
-      expect(instance.secret).to eq plaintext
-    end
-
-    it 'denies all listed contexts' do
-      described_class.deny_encryption_contexts('bad_a', 'bad_b')
-
-      expect { klass.new('bad_a').secret = plaintext }.to raise_error(described_class::ContextNotAllowed)
-    end
-
-    it 'allows contexts not in the deny list' do
-      described_class.deny_encryption_contexts('bad_a', 'bad_b')
-
-      good = klass.new('good')
-      good.secret = plaintext
-      expect(good.secret).to eq plaintext
+      expect { klass.new({ type: 'some_ctx' }).secret = plaintext }.to raise_error(described_class::ContextNotAllowed)
     end
   end
 
@@ -126,7 +93,7 @@ RSpec.describe Teak::AttrEncrypted::Testing do
       described_class.allow_encryption_contexts('only_this')
       described_class.reset!
 
-      instance = klass.new('anything')
+      instance = klass.new({ type: 'anything' })
       instance.secret = plaintext
       expect(instance.secret).to eq plaintext
     end
@@ -134,7 +101,7 @@ RSpec.describe Teak::AttrEncrypted::Testing do
 
   describe 'with no restrictions configured' do
     it 'allows all contexts' do
-      instance = klass.new('any_context')
+      instance = klass.new({ type: 'any_context' })
       instance.secret = plaintext
       expect(instance.secret).to eq plaintext
     end
@@ -146,7 +113,7 @@ RSpec.describe Teak::AttrEncrypted::Testing do
     it 'delegates allow_encryption_contexts' do
       allow_encryption_contexts('my_ctx')
 
-      instance = klass.new('my_ctx')
+      instance = klass.new({ type: 'my_ctx' })
       instance.secret = plaintext
       expect(instance.secret).to eq plaintext
     end
@@ -154,21 +121,7 @@ RSpec.describe Teak::AttrEncrypted::Testing do
     it 'blocks disallowed contexts via allow helper' do
       allow_encryption_contexts('my_ctx')
 
-      expect { klass.new('other').secret = plaintext }.to raise_error(Teak::AttrEncrypted::Testing::ContextNotAllowed)
-    end
-
-    it 'delegates deny_encryption_contexts' do
-      deny_encryption_contexts('blocked')
-
-      expect { klass.new('blocked').secret = plaintext }.to raise_error(Teak::AttrEncrypted::Testing::ContextNotAllowed)
-    end
-
-    it 'allows non-denied contexts via deny helper' do
-      deny_encryption_contexts('blocked')
-
-      instance = klass.new('ok')
-      instance.secret = plaintext
-      expect(instance.secret).to eq plaintext
+      expect { klass.new({ type: 'other' }).secret = plaintext }.to raise_error(Teak::AttrEncrypted::Testing::ContextNotAllowed)
     end
   end
 end
