@@ -7,3 +7,4 @@ gem "rake", "~> 12.0"
 gem "rspec", "~> 3.0"
 gem 'simplecov', '~> 0.22.0'
 gem "aws-sdk-kms", "~> 1.72"
+gem "nokogiri", "~> 1.18"
