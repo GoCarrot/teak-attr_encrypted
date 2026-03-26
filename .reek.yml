@@ -1,0 +1,36 @@
+exclude_paths:
+- bin
+- spec # We might want to reconsider this at some point, but...
+detectors:
+  IrresponsibleModule:
+    enabled: false # Duplicative vs. RuboCop.
+  TooManyStatements:
+    enabled: false # Duplicative vs. RuboCop.
+  ControlParameter:
+    exclude:
+    - Teak::AttrEncrypted::DSL::ClassMethods#attr_encrypted
+    - Teak::AttrEncrypted::KEKProvider::AwsKMS#initialize
+  DuplicateMethodCall:
+    exclude:
+    - Teak::AttrEncrypted::DSL::ClassMethods#attr_encrypted
+    - Teak::AttrEncrypted::DSL::ClassMethods#attr_encrypted
+    - Teak::AttrEncrypted::KEKProvider::AES#request_data_key
+    - Teak::AttrEncrypted::Testing#context_allowed?
+  FeatureEnvy:
+    exclude:
+    - Teak::AttrEncrypted::Encryptor#decrypt
+    - Teak::AttrEncrypted::Encryptor#encrypt
+    - Teak::AttrEncrypted::KEKProvider::AES#decrypt_data_key
+    - Teak::AttrEncrypted::KEKProvider::AES#request_data_key
+  LongParameterList:
+      exclude:
+      - Teak::AttrEncrypted::DSL::ClassMethods#attr_encrypted
+  NilCheck:
+      exclude:
+      - Teak::AttrEncrypted::DSL::ClassMethods#attr_encrypted
+  TooManyConstants:
+      exclude:
+      - Teak::AttrEncrypted::Encryptor
+  UtilityFunction:
+      exclude:
+      - Teak::AttrEncrypted::Testing::RSpecHelpers#allow_encryption_contexts

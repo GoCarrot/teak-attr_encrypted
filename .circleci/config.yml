@@ -1,0 +1,156 @@
+version: 2.1
+
+parameters:
+  scheduled_run:
+    type: boolean
+    default: false
+
+references:
+  AUDIT_ALERT_RECIPIENTS: &AUDIT_ALERT_RECIPIENTS
+    "@jfrisby"
+  RUBY_IMAGE: &RUBY_IMAGE
+    cimg/ruby:3.2.2
+  CACHE_KEY: &BUNDLE_CACHE_KEY
+    v1-teak-attr_encrypted-{{ checksum "Gemfile.lock" }}
+  # ONLY_DEVELOP: &ONLY_DEVELOP
+  #   filters:
+  #     branches:
+  #       only:
+  #         - develop
+  # ONLY_MAIN: &ONLY_MAIN
+  #   filters:
+  #     branches:
+  #       only:
+  #         - main
+  # BRANCHES_ONLY: &BRANCHES_ONLY
+  #   filters:
+  #     branches:
+  #       ignore:
+  #         - main
+  #         - develop
+
+orbs:
+  slack: circleci/slack@6.1 # https://github.com/CircleCI-Public/slack-orb/releases
+
+jobs:
+  refresh_ruby_deps:
+    docker:
+      - image: *RUBY_IMAGE
+        environment:
+          RACK_ENV: test
+    working_directory: ~/teak-attr_encrypted-build
+    steps:
+      - checkout
+      - restore_cache:
+          key: *BUNDLE_CACHE_KEY
+      - run: bundle config set --local path 'vendor/bundle'
+      - run: bundle install --jobs 3 --retry 3
+      - save_cache:
+          key: *BUNDLE_CACHE_KEY
+          paths:
+            - ~/teak-attr_encrypted-build/vendor/bundle
+            - ~/teak-attr_encrypted-build/.bundle
+
+  rspec:
+    docker:
+      - image: *RUBY_IMAGE
+    parallelism: 4
+    working_directory: ~/teak-attr_encrypted-build
+    steps:
+      - checkout
+      - restore_cache:
+          key: *BUNDLE_CACHE_KEY
+      - run: mkdir ~/rspec
+      - run: gem list
+      - run: bundle list
+      - run:
+          command: |
+            circleci tests glob "spec/**/*_spec.rb" | circleci tests run --command="xargs bundle exec rspec --format progress --format RspecJunitFormatter -o ~/rspec/rspec.xml" --verbose --split-by=timings
+      - store_test_results:
+          path: ~/rspec
+      - store_artifacts:
+          path: ~/rspec/rspec.xml
+      - run: mv ./coverage /tmp/coverage_${CIRCLE_NODE_INDEX}
+      - persist_to_workspace:
+          root: /tmp
+          paths:
+          - "coverage_*"
+
+  report_coverage:
+    docker:
+      - image: *RUBY_IMAGE
+    working_directory: ~/teak-attr_encrypted-build
+    steps:
+      - checkout
+      - restore_cache:
+          key: *BUNDLE_CACHE_KEY
+      - attach_workspace:
+          at: /tmp/coverage
+      - run: bundle exec rake report:coverage
+
+  lint_rubocop:
+    docker:
+      - image: *RUBY_IMAGE
+    working_directory: ~/teak-attr_encrypted-build
+    steps:
+      - checkout
+      - restore_cache:
+          key: *BUNDLE_CACHE_KEY
+      - run: bundle exec rake lint:rubocop
+
+  report_rubocop:
+    docker:
+      - image: *RUBY_IMAGE
+    working_directory: ~/teak-attr_encrypted-build
+    steps:
+      - checkout
+      - restore_cache:
+          key: *BUNDLE_CACHE_KEY
+      - run: bundle exec rake report:rubocop
+
+  lint_bundler_audit:
+    docker:
+      - image: *RUBY_IMAGE
+    working_directory: ~/teak-attr_encrypted-build
+    steps:
+      - checkout
+      - restore_cache:
+          key: *BUNDLE_CACHE_KEY
+      - run: bundle exec rake lint:bundler_audit
+      - slack/notify:
+          event: fail
+          template: basic_fail_1
+          mentions: *AUDIT_ALERT_RECIPIENTS
+
+workflows:
+  build:
+    when:
+      not: << pipeline.parameters.scheduled_run >>
+    jobs:
+      - refresh_ruby_deps
+      - rspec:
+          requires:
+            - refresh_ruby_deps
+      - report_coverage:
+          requires:
+            - rspec
+          context:
+            - DataDog
+      - lint_rubocop:
+          requires:
+            - refresh_ruby_deps
+      - report_rubocop:
+          requires:
+            - refresh_ruby_deps
+          context:
+            - DataDog
+
+  period_dependency_audits:
+    when: << pipeline.parameters.scheduled_run >>
+    jobs:
+      - refresh_ruby_deps
+      - lint_bundler_audit:
+          context:
+            - Slack
+          requires:
+            - refresh_ruby_deps
