@@ -49,7 +49,7 @@ RSpec.describe Teak::AttrEncrypted::Testing do
     end
 
     it 'denies on read when context is not allowed' do
-      context_value = { type: 'was_allowed' }
+      context_value = 'was_allowed'
       instance = klass.new({ type: context_value })
 
       described_class.allow_encryption_contexts(context_value)
