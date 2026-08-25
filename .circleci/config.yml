@@ -6,8 +6,6 @@ parameters:
     default: false
 
 references:
-  AUDIT_ALERT_RECIPIENTS: &AUDIT_ALERT_RECIPIENTS
-    "@jfrisby"
   RUBY_IMAGE: &RUBY_IMAGE
     cimg/ruby:3.2.2
   CACHE_KEY: &BUNDLE_CACHE_KEY
@@ -120,7 +118,6 @@ jobs:
       - slack/notify:
           event: fail
           template: basic_fail_1
-          mentions: *AUDIT_ALERT_RECIPIENTS
 
 workflows:
   build:
