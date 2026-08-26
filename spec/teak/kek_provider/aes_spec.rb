@@ -54,8 +54,10 @@ RSpec.describe Teak::AttrEncrypted::KEKProvider::AES do
   context 'with a munged ciphertext_blob' do
     it 'raises an error' do
       key_info = kek_provider.request_data_key(encryption_context)
+      munged = key_info.ciphertext_blob.dup
+      munged[-1] = (munged[-1].ord ^ 0xFF).chr
       expect do
-        kek_provider.decrypt_data_key(key_info.ciphertext_blob.succ, encryption_context)
+        kek_provider.decrypt_data_key(munged, encryption_context)
       end.to raise_error(OpenSSL::Cipher::CipherError)
     end
   end
